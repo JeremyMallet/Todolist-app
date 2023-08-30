@@ -1,7 +1,10 @@
 import './index.css';
 import Header from './components/Header/Header';
 import TaskContainer from './components/TaskContainer/TaskContainer';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import SignUp from './components/SignUp';
+import Login from './components/Login';
+import { checkAuthState } from './components/firebaseConfig';
 
 function App() {
     // On tente de récupérer les tâches sauvegardées dans le local storage
@@ -14,10 +17,27 @@ function App() {
         { id: 2, title: 'Faire les courses' },
     ]);
 
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+        const unsubscribe = checkAuthState((currentUser) => {
+            if (currentUser) {
+                setUser(currentUser);
+            } else {
+                setUser(null);
+            }
+        });
+
+        return () => unsubscribe(); // Nettoyage de l'effet 
+    }, []);
+
     return (
         <div className="App">
             <Header />
             <TaskContainer tasks={tasks} setTasks={setTasks} />
+            {!user && <SignUp />}
+            {!user && <Login />}
+            {user && <p>Bonjour {user.email}</p>}
         </div>
     );
 }
