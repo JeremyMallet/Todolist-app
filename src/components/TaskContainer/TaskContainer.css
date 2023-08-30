@@ -3,3 +3,10 @@
     max-width: 600px;
     margin: 0 auto;
 }
+.task.done {
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+.box.task {
+    margin-bottom: 1rem; 
+}
