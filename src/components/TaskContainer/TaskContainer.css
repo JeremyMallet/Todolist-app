@@ -10,3 +10,8 @@
 .box.task {
     margin-bottom: 1rem; 
 }
+.task-category {
+    font-size: 0.8rem;
+    color: #888;
+    margin-left: 0.5rem;
+}

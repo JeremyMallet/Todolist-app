@@ -5,6 +5,8 @@ function TaskContainer({ tasks, setTasks }) {
     const [newTaskTitle, setNewTaskTitle] = useState('');
     const [editingId, setEditingId] = useState(null);
     const [editTitle, setEditTitle] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState('Personnel');
+    const [filteredCategory, setFilteredCategory] = useState('Tout');
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -14,7 +16,8 @@ function TaskContainer({ tasks, setTasks }) {
         const newTask = {
           id: Date.now(),
           title: newTaskTitle,
-          status: 'todo'
+          status: 'todo',
+          category: selectedCategory
         };
 
         const updatedTasks = [...tasks, newTask];
@@ -68,11 +71,35 @@ function TaskContainer({ tasks, setTasks }) {
                     value={newTaskTitle}
                     onChange={(e) => setNewTaskTitle(e.target.value)}
                 />
+
+                {/* Sélecteur de catégorie pour l'ajout de nouvelle tâche */}
+                <div>
+                    <label>Catégorie: </label>
+                    <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
+                        <option value="Personnel">Personnel</option>
+                        <option value="Professionnel">Professionnel</option>
+                        <option value="Courses">Courses</option>
+                        <option value="Autre">Autre</option>
+                    </select>
+                </div>
+
                 <button type="submit">Ajouter</button>
             </form>
+
+            {/* Sélecteur pour filtrer les tâches par catégorie */}
+            <div className="filter-container">
+                <label>Filtrer par catégorie: </label>
+                <select value={filteredCategory} onChange={(e) => setFilteredCategory(e.target.value)}>
+                    <option value="Tout">Tout</option>
+                    <option value="Personnel">Personnel</option>
+                    <option value="Professionnel">Professionnel</option>
+                    <option value="Courses">Courses</option>
+                    <option value="Autre">Autre</option>
+                </select>
+            </div>
             <div className="task-container">
-                {tasks.map((task) => (
-                    <div key={task.id} className={`box task ${task.status}`}> {/* Utilisation des backticks */}
+                {tasks.filter(task => filteredCategory === 'Tout' || task.category === filteredCategory).map((task) => (
+                    <div key={task.id} className={`box task ${task.status}`}> 
                         {editingId === task.id ? (
                             <input
                                 type="text"
@@ -80,7 +107,7 @@ function TaskContainer({ tasks, setTasks }) {
                                 onChange={(e) => setEditTitle(e.target.value)}
                             />
                         ) : (
-                            <p className="task-title">{task.title}</p>
+                            <p className="task-title">{task.title} <span className="task-category">[{task.category}]</span></p>
                         )}
             
                         {editingId === task.id ? (
