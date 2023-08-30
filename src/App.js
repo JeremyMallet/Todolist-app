@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import SignUp from './components/SignUp';
 import Login from './components/Login';
 import { checkAuthState } from './components/firebaseConfig';
+import { logoutUser } from './components/firebaseConfig';
 
 function App() {
     // On tente de récupérer les tâches sauvegardées dans le local storage
@@ -31,13 +32,24 @@ function App() {
         return () => unsubscribe(); // Nettoyage de l'effet 
     }, []);
 
+    const handleLogout = async () => {
+        try {
+            await logoutUser();
+        } catch (error) {
+            console.error("Erreur lors de la déconnexion", error);
+        }
+    };
+
     return (
         <div className="App">
             <Header />
             <TaskContainer tasks={tasks} setTasks={setTasks} />
             {!user && <SignUp />}
             {!user && <Login />}
-            {user && <p>Bonjour {user.email}</p>}
+            {user && <div>
+                <p>Bonjour, {user.email}</p>
+                <button onClick={handleLogout}>Se déconnecter</button>
+            </div>}
         </div>
     );
 }

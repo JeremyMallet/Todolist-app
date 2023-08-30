@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { onAuthStateChanged } from "firebase/auth";
+import { signOut } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAUtLUX2LnrwdaxF3j8-KZ413tvOQUWzoA",
@@ -15,6 +16,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
+export const logoutUser = () => {
+  return signOut(auth);
+};
 export const checkAuthState = (callback) => {
   return onAuthStateChanged(auth, callback);
 };
