@@ -1,36 +1,18 @@
-import './index.css';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header/Header';
-import TaskContainer from './components/TaskContainer/TaskContainer';
-import React, { useEffect, useState } from 'react';
-import SignUp from './components/SignUp';
 import Login from './components/Login';
-import { checkAuthState } from './components/firebaseConfig';
-import { logoutUser } from './components/firebaseConfig';
+import SignUp from './components/SignUp';
+import TaskContainer from './components/TaskContainer/TaskContainer';
+import PrivateRoute from './components/PrivateRoute';
+import { logoutUser } from './firebaseConfig';
+import AuthContext from './contexts/AuthContext';
+import { auth } from './firebaseConfig';
 
 function App() {
-    // On tente de récupérer les tâches sauvegardées dans le local storage
-    const savedTasks = JSON.parse(localStorage.getItem('tasks'));
-    
-    // Si savedTasks est null (c'est-à-dire qu'il n'y a rien dans le local storage), 
-    // alors on initialise avec une liste de tâches par défaut, sinon on utilise savedTasks.
-    const [tasks, setTasks] = useState(savedTasks || [
-        { id: 1, title: 'Apprendre React' },
-        { id: 2, title: 'Faire les courses' },
-    ]);
-
+    const savedTasks = JSON.parse(localStorage.getItem('tasks')) || [];
+    const [tasks, setTasks] = useState(savedTasks);
     const [user, setUser] = useState(null);
-
-    useEffect(() => {
-        const unsubscribe = checkAuthState((currentUser) => {
-            if (currentUser) {
-                setUser(currentUser);
-            } else {
-                setUser(null);
-            }
-        });
-
-        return () => unsubscribe(); // Nettoyage de l'effet 
-    }, []);
 
     const handleLogout = async () => {
         try {
@@ -40,17 +22,37 @@ function App() {
         }
     };
 
+    useEffect(() => {
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+    }, [tasks]);
+
+    useEffect(() => {
+        const unsubscribe = auth.onAuthStateChanged((authUser) => {
+            if (authUser) {
+                setUser(authUser);
+            } else {
+                setUser(null);
+            }
+        });
+    
+        return () => unsubscribe();
+    }, []);
+
     return (
-        <div className="App">
-            <Header />
-            <TaskContainer tasks={tasks} setTasks={setTasks} />
-            {!user && <SignUp />}
-            {!user && <Login />}
-            {user && <div>
-                <p>Bonjour, {user.email}</p>
-                <button onClick={handleLogout}>Se déconnecter</button>
-            </div>}
-        </div>
+        <AuthContext.Provider value={user}>
+            <Router>
+                <Header user={user} onLogout={handleLogout} />
+                <Routes>
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/SignUp" element={<SignUp />} />
+                    <Route path="/dashboard" element={
+                        <PrivateRoute>
+                            <TaskContainer tasks={tasks} setTasks={setTasks} />
+                        </PrivateRoute>
+                    } />
+                </Routes>
+            </Router>
+        </AuthContext.Provider>
     );
 }
 

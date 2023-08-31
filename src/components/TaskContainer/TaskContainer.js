@@ -98,7 +98,7 @@ function TaskContainer({ tasks, setTasks }) {
                 </select>
             </div>
             <div className="task-container">
-                {tasks.filter(task => filteredCategory === 'Tout' || task.category === filteredCategory).map((task) => (
+                {tasks && tasks.filter(task => filteredCategory === 'Tout' || task.category === filteredCategory).map((task) => (
                     <div key={task.id} className={`box task ${task.status}`}> 
                         {editingId === task.id ? (
                             <input
